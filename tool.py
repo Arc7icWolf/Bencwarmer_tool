@@ -48,7 +48,7 @@ def get_response(data, session: requests.Session):
 # CHECK REQUIREMENTS OF THE POSTS // API INTERACTION --> NO
 
 
-# Check it target language is among the top languages and number of languages
+# Check number of languages
 def text_language(text):
     try:
         languages = detect_langs(text)
@@ -132,7 +132,7 @@ def posts(author, session: requests.Session):
     return valid_posts, len(valid_posts)
 
 
-# Get replies for target post from target author
+# Get total replies for target post from target author
 def replies(author, permlink, session: requests.Session):
     data = (
         f'{{"jsonrpc":"2.0", "method":"condenser_api.get_content_replies", '
@@ -143,7 +143,7 @@ def replies(author, permlink, session: requests.Session):
     return len(replies)
 
 
-# Get votes for target post from target author
+# Get total votes for target post from target author
 def votes(author, permlink, session: requests.Session):
     data = (
         f'{{"jsonrpc":"2.0", "method":"condenser_api.get_active_votes", '
