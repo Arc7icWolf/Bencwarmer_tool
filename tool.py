@@ -102,8 +102,8 @@ def convert_and_count_words(md_text):
 # CHECK REQUIREMENTS OF THE POSTS // API INTERACTION --> YES
 
 
-# Get posts for target author
-def posts(author, session: requests.Session):
+# Get posts amount for target author
+def posts(author, seven_days, session: requests.Session):
     data = (
         f'{{"jsonrpc":"2.0", "method":"bridge.get_account_posts", '
         f'"params":{{"sort":"posts", "account": "{author}", "limit": 20}}, "id":1}}'
@@ -112,38 +112,64 @@ def posts(author, session: requests.Session):
 
     valid_posts = []
 
-    today = datetime.now()
-    seven_days = today - timedelta(days=6, hours=23)
-    less_than_seven_days = True
-    while less_than_seven_days:
-        for post in posts:
-            category = post["category"]
-            created = post["created"]
+    for post in posts:
+        category = post["category"]
+        created = post["created"]
 
-            if category == "hive-146620":
-                valid_posts.append(post)
+        created_formatted = datetime.strptime(created, "%Y-%m-%dT%H:%M:%S")
+        if created_formatted < seven_days:
+            print(f"No more posts less than seven days older found for {author}")
+            break  # Stop if post is more than 7 days old
 
-            created_formatted = datetime.strptime(created, "%Y-%m-%dT%H:%M:%S")
-            if created_formatted < seven_days:
-                less_than_seven_days = False
-                print(f"No more posts less than seven days older found for {author}")
-                break  # Stop if post is more than 7 days old
+        if category == "hive-146620":
+            valid_posts.append(post)
 
     return valid_posts, len(valid_posts)
 
 
-# Get total replies for target post from target author
-def replies(author, permlink, session: requests.Session):
+# Get total replies amount from target author in the target community
+def replies(author, seven_days, session: requests.Session):
+    data = (
+        f'{{"jsonrpc":"2.0", "method":"bridge.get_account_posts", '
+        f'"params":{{"sort":"comments", "account": "{author}", "limit": 100}}, "id":1}}'
+    )
+    replies = get_response(data, session)
+
+    replies_num = 0
+    replies_length = 0
+
+    for reply in replies:
+        reply_time = reply["created"]
+        reply_time_formatted = datetime.strptime(reply_time, "%Y-%m-%dT%H:%M:%S")
+        reply_body = reply["body"]
+
+        if reply_time_formatted < seven_days:
+            break
+
+        if "hive-146620" not in reply.get("community", []):
+            continue  # If the comment is not in the target community, skip
+
+        word_count = convert_and_count_words(body)
+
+        replies_length += word_count
+
+        replies_num += 1
+
+    return replies_num, replies_length
+
+
+# Get total replies amount for target post from target author
+def post_replies(author, permlink, session: requests.Session):
     data = (
         f'{{"jsonrpc":"2.0", "method":"condenser_api.get_content_replies", '
         f'"params":["{author}", "{permlink}"], "id":1}}'
     )
-    replies = get_response(data, session)
+    post_replies = get_response(data, session)
 
-    return len(replies)
+    return len(post_replies)
 
 
-# Get total votes for target post from target author
+# Get total votes amount for target post from target author
 def votes(author, permlink, session: requests.Session):
     data = (
         f'{{"jsonrpc":"2.0", "method":"condenser_api.get_active_votes", '
@@ -166,12 +192,16 @@ def eligible_posts(session: requests.Session):
         "arc7icwolf",
     ]
 
+    today = datetime.now()
+    seven_days = today - timedelta(days=6, hours=23)
+
     entries = []
 
     for author in authors:
-        valid_posts, total_posts = posts(author, session)
+        valid_posts, total_posts = posts(author, seven_days, session)
+        total_replies, total_replies_length = replies(author, seven_days, session)
 
-        total_replies = 0
+        total_post_replies = 0
         total_votes = 0
         total_words = 0
 
@@ -186,8 +216,8 @@ def eligible_posts(session: requests.Session):
 
             total_words += word_count
 
-            replies_num = replies(author, permlink, session)
-            total_replies += replies_num
+            replies_num = post_replies(author, permlink, session)
+            total_post_replies += replies_num
 
             votes_num = votes(author, permlink, session)
             total_votes += votes_num
@@ -195,7 +225,7 @@ def eligible_posts(session: requests.Session):
         if total_posts != 0:
             formula = (
                 (total_words / total_posts * 0.8)
-                + (total_replies / total_posts * 0.2)
+                + (total_post_replies / total_posts * 0.2)
                 + (total_votes / total_posts * 0.001)
             )
         else:
@@ -204,9 +234,11 @@ def eligible_posts(session: requests.Session):
         result = (
             f"- **{author}** ha pubblicato {total_posts} post "
             f"per un totale di {total_words} parole, "
-            f"ottenendo {total_replies} risposte "
+            f"ottenendo {total_post_replies} risposte "
             f"e {total_votes} voti, "
-            f"per un punteggio finale di {formula:.2f} punti"
+            f"ed effettuato {total_post_replies} commenti "
+            f"per un totale di {total_replies_length} parole, "
+            f"per un punteggio finale di {formula:.2f} punti."
         )
 
         entries.append(result)
