@@ -224,9 +224,10 @@ def eligible_posts(session: requests.Session):
 
         if total_posts != 0:
             formula = (
-                (total_words / total_posts * 0.8)
-                + (total_post_replies / total_posts * 0.2)
+                (total_words / total_posts * 0.4)
+                + (total_post_replies / total_posts * 0.1)
                 + (total_votes / total_posts * 0.001)
+                + (total_replies_length / total_replies * 0.5)
             )
         else:
             formula = 0
