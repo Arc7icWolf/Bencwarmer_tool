@@ -149,7 +149,7 @@ def replies(author, seven_days, session: requests.Session):
         if "hive-146620" not in reply.get("community", []):
             continue  # If the comment is not in the target community, skip
 
-        word_count = convert_and_count_words(body)
+        word_count = convert_and_count_words(reply_body)
 
         replies_length += word_count
 
@@ -236,7 +236,7 @@ def eligible_posts(session: requests.Session):
             f"per un totale di {total_words} parole, "
             f"ottenendo {total_post_replies} risposte "
             f"e {total_votes} voti, "
-            f"ed effettuato {total_post_replies} commenti "
+            f"ed effettuato {total_replies} commenti "
             f"per un totale di {total_replies_length} parole, "
             f"per un punteggio finale di {formula:.2f} punti."
         )
