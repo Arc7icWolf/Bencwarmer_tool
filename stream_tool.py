@@ -239,10 +239,10 @@ def eligible_posts(authors, session: requests.Session):
     return entries
 
 
-def main():
+def main(authors):
     try:
         with requests.Session() as session:
-            entries = eligible_posts(session)
+            entries = eligible_posts(authors, session)
     except (json.JSONDecodeError, KeyError) as e:
         logger.error(f"JSON decode error or missing key: {e}")
         st.error(f"JSON decode error or missing key: {e}")
