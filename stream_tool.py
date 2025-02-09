@@ -181,16 +181,7 @@ def votes(author, permlink, session: requests.Session):
 
 
 # Found and check eligible posts published in the last 7 days in the target community
-def eligible_posts(session: requests.Session):
-    authors = [
-        "libertycrypto27",
-        "will91",
-        "steveguereschi",
-        "lozio71",
-        "harbiter",
-        "arc7icwolf",
-    ]
-
+def eligible_posts(authors, session: requests.Session):
     today = datetime.now()
     seven_days = today - timedelta(days=6, hours=23)
 
@@ -260,7 +251,7 @@ def main():
         logger.error(f"An error occurred: {e}")
         st.error(f"An error occurred: {e}")
         return
-    st.write("### Risultato degli ultmi 7 giorni:")
+    st.write("### Risultato degli ultimi 7 giorni:")
     with open("entries.txt", "w", newline="", encoding="utf-8") as file:
         for entry in entries:
             st.markdown(entry)
@@ -269,4 +260,11 @@ def main():
 
 if __name__ == "__main__":
     st.title("Engagement Contest, by Bencwarmer")
-    main()
+    # Input box to insert one or more usernames, separated by a comma
+    authors_input = st.text_input("Inserisci uno o più username separati da virgola: ")
+    authors = [author.strip() for author in authors_input.split(",") if author.strip()]
+    if st.button("Avvia analisi dei dati"):
+        if authors:
+            main(authors)
+        else:
+            st.warning("Nessun autore inserito. Inserisci almeno un username.")
