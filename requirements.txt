@@ -1,2 +1,3 @@
 markdown
 langdetect
+bs4
