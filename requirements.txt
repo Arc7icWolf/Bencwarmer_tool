@@ -1,3 +1,4 @@
 markdown
 langdetect
 bs4
+streamlit
