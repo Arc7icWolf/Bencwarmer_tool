@@ -212,15 +212,14 @@ def eligible_posts(authors, session: requests.Session):
             votes_num = votes(author, permlink, session)
             total_votes += votes_num
 
-        if total_posts != 0:
-            formula = (
-                (total_words / total_posts * 0.5)
-                + (total_replies_length / total_replies * 10)
-                + (total_votes / total_posts * 0.01)
-                + (total_post_replies / total_posts * 0.2)
-            )
-        else:
-            formula = 0
+        if total_posts == 0:
+            total_posts = 1
+        formula = (
+            (total_words / total_posts * 0.5)
+            + (total_replies_length / total_replies * 10)
+            + (total_votes / total_posts * 0.01)
+            + (total_post_replies / total_posts * 0.2)
+        )
 
         result = (
             f"- **{author}** ha pubblicato {total_posts} post "
