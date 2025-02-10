@@ -266,4 +266,4 @@ if __name__ == "__main__":
         if authors:
             main(authors)
         else:
-            st.warning("Nessun autore inserito. Inserisci almeno un username.")
+            st.warning("Nessun autore inserito. Inserisci almeno uno username.")
