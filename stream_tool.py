@@ -212,8 +212,12 @@ def eligible_posts(authors, session: requests.Session):
             votes_num = votes(author, permlink, session)
             total_votes += votes_num
 
+        # Avoid division by zero
         if total_posts == 0:
             total_posts = 1
+        if total_replies == 0:
+            total_replies = 1
+        
         formula = (
             (total_words / total_posts * 0.5)
             + (total_replies_length / total_replies * 10)
