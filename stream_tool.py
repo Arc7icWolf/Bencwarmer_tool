@@ -162,7 +162,8 @@ def post_replies(author, permlink, session: requests.Session):
     data = (
         f'{{"jsonrpc":"2.0", "method":"database_api.list_comments", '
         f'"params": {{"start":["{author}","{permlink}","",""], '
-        f'"limit":1000, "order":"by_root"}}, "id":1}}'          
+        f'"limit":1000, "order":"by_root"}}, "id":1}}'
+    )          
     post_replies = get_response(data, session)
     bot = [
         "lolzbot", 
