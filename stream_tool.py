@@ -176,7 +176,8 @@ def post_replies(author, permlink, session: requests.Session):
         "ccceo.voter", 
         "luvshares", 
         "steemmonsters", 
-        "duo-tip"
+        "duo-tip",
+        "hivebuzz"
         ]
     post_replies_counter = 0
     for post in post_replies:
