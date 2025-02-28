@@ -164,8 +164,26 @@ def post_replies(author, permlink, session: requests.Session):
         f'"params":["{author}", "{permlink}"], "id":1}}'
     )
     post_replies = get_response(data, session)
+    bot = [
+        "lolzbot", 
+        "pizzabot", 
+        "hiq.smartbot", 
+        "discovery-it", 
+        "beerlover", 
+        "splinterboost", 
+        "tipu", 
+        "indiaunited", 
+        "ccceo.voter", 
+        "luvshares", 
+        "steemmonsters", 
+        "duo-tip"
+        ]
+    post_replies_counter = 0
+    for post in post_replies:
+        if post['author'] not in bot:
+            post_replies_counter += 1
 
-    return len(post_replies)
+    return post_replies_counter
 
 
 # Get total votes amount for target post from target author
