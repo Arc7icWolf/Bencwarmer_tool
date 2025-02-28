@@ -159,10 +159,14 @@ def replies(author, seven_days, session: requests.Session):
 
 # Get total replies amount for target post from target author
 def post_replies(author, permlink, session: requests.Session):
+    '''
     data = (
         f'{{"jsonrpc":"2.0", "method":"condenser_api.get_content_replies", '
         f'"params":["{author}", "{permlink}"], "id":1}}'
     )
+    '''
+
+    data = f'{{"jsonrpc":"2.0", "method":"database_api.list_comments", "params": {{"start":["{author}","{permlink}","",""], "limit":1000, "order":"by_root"}}, "id":1}}'            
     post_replies = get_response(data, session)
     bot = [
         "lolzbot", 
@@ -180,8 +184,9 @@ def post_replies(author, permlink, session: requests.Session):
         "hivebuzz"
         ]
     post_replies_counter = 0
-    for post in post_replies:
-        if post['author'] not in bot:
+
+    for reply in post_replies['comments'][1:]:
+        if reply['author'] not in bot:
             post_replies_counter += 1
 
     return post_replies_counter
